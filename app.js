@@ -1,27 +1,36 @@
-const API_URL = "https://script.google.com/macros/s/AKfycbylEMm30vUurbfTsMSRThMNmqSM_ErntbNqY221QUnJzXx9kmbMKacQb6MbufSjI5-oYg/exec";
+// 정확한 Google Web App URL
+const API_URL = "https://script.google.com/macros/s/AKfycbyIEMm30vUurbfTsMSRThMNmqSM_ErntbNqY221QUnJzXx9kmbMKacQb6MbufSjI5-oYg/exec";
 
 let loggedInUser = null;
 let crmData = { leads: [], users: [] };
 
-// JSONP Helper to avoid browser CORS blocks
-function sendJSONP(url) {
-  return new Promise((resolve, reject) => {
-    const callbackName = 'jsonp_cb_' + Math.round(100000 * Math.random());
-    window[callbackName] = function(data) {
-      delete window[callbackName];
-      document.body.removeChild(script);
-      resolve(data);
-    };
-
-    const script = document.createElement('script');
-    script.src = url + (url.indexOf('?') >= 0 ? '&' : '?') + 'callback=' + callbackName;
-    script.onerror = function() {
-      delete window[callbackName];
-      document.body.removeChild(script);
-      reject(new Error('Connection error'));
-    };
-    document.body.appendChild(script);
-  });
+// Smart Request Handler (Fetch + JSONP Fallback)
+async function makeRequest(params) {
+  const query = new URLSearchParams(params).toString();
+  const url = `${API_URL}?${query}`;
+  
+  try {
+    const res = await fetch(url, { method: 'GET', mode: 'cors' });
+    return await res.json();
+  } catch (err) {
+    // Fallback to JSONP
+    return new Promise((resolve, reject) => {
+      const cbName = 'crm_cb_' + Math.floor(Math.random() * 1000000);
+      window[cbName] = function(data) {
+        delete window[cbName];
+        if (script.parentNode) script.parentNode.removeChild(script);
+        resolve(data);
+      };
+      const script = document.createElement('script');
+      script.src = `${url}&callback=${cbName}`;
+      script.onerror = function() {
+        delete window[cbName];
+        if (script.parentNode) script.parentNode.removeChild(script);
+        reject(new Error('Network error'));
+      };
+      document.body.appendChild(script);
+    });
+  }
 }
 
 async function login() {
@@ -30,12 +39,11 @@ async function login() {
   const msg = document.getElementById('logMsg');
   const btn = document.getElementById('loginBtn');
 
-  msg.innerText = "Connecting...";
+  msg.innerText = "Signing in...";
   btn.disabled = true;
 
   try {
-    const url = `${API_URL}?action=login&username=${encodeURIComponent(u)}&password=${encodeURIComponent(p)}`;
-    const result = await sendJSONP(url);
+    const result = await makeRequest({ action: 'login', username: u, password: p });
 
     if (result && result.success) {
       loggedInUser = result.user;
@@ -46,10 +54,10 @@ async function login() {
       document.getElementById('profRole').innerText = loggedInUser.role;
       refreshData();
     } else {
-      msg.innerText = result && result.message ? result.message : "Invalid Username or Password!";
+      msg.innerText = (result && result.message) ? result.message : "Invalid Username or Password!";
     }
   } catch (err) {
-    msg.innerText = "Connection Error! Retrying...";
+    msg.innerText = "Connection Error! Check script or network.";
   } finally {
     btn.disabled = false;
   }
@@ -73,8 +81,7 @@ function switchTab(evt, tabId) {
 
 async function refreshData() {
   try {
-    const url = `${API_URL}?action=getData`;
-    crmData = await sendJSONP(url);
+    crmData = await makeRequest({ action: 'getData' });
     renderAll();
   } catch (err) {
     console.error("Data load error:", err);
@@ -156,26 +163,31 @@ function renderAll() {
 // Add New Lead
 async function saveLead() {
   const btn = document.getElementById('submitBtn');
-  btn.disabled = true;
-  btn.innerText = "Submitting...";
-
-  const cust = document.getElementById('fName').value;
-  const phone = document.getElementById('fPhone').value;
-  const city = document.getElementById('fCity').value;
-  const service = document.getElementById('fService').value;
+  const cust = document.getElementById('fName').value.trim();
+  const phone = document.getElementById('fPhone').value.trim();
+  const city = document.getElementById('fCity').value.trim();
+  const service = document.getElementById('fService').value.trim();
   const assignedTo = document.getElementById('fAssign').value;
-  const notes = document.getElementById('fNotes').value;
+  const notes = document.getElementById('fNotes').value.trim();
 
   if (!cust || !phone) {
     alert("Please enter Name and Phone!");
-    btn.disabled = false;
-    btn.innerText = "Submit Lead";
     return;
   }
 
+  btn.disabled = true;
+  btn.innerText = "Submitting...";
+
   try {
-    const url = `${API_URL}?action=addLead&customer=${encodeURIComponent(cust)}&phone=${encodeURIComponent(phone)}&city=${encodeURIComponent(city)}&service=${encodeURIComponent(service)}&assignedTo=${encodeURIComponent(assignedTo)}&notes=${encodeURIComponent(notes)}`;
-    await sendJSONP(url);
+    await makeRequest({
+      action: 'addLead',
+      customer: cust,
+      phone: phone,
+      city: city,
+      service: service,
+      assignedTo: assignedTo,
+      notes: notes
+    });
     
     alert("Lead submitted successfully!");
     document.getElementById('fName').value = '';
@@ -210,8 +222,13 @@ async function saveUser() {
   btn.innerText = "Creating...";
 
   try {
-    const url = `${API_URL}?action=addUser&fullName=${encodeURIComponent(fullName)}&username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}&role=${encodeURIComponent(role)}`;
-    await sendJSONP(url);
+    await makeRequest({
+      action: 'addUser',
+      fullName: fullName,
+      username: username,
+      password: password,
+      role: role
+    });
     alert("User created successfully!");
     document.getElementById('uFullName').value = '';
     document.getElementById('uEmail').value = '';
@@ -231,8 +248,12 @@ async function saveLeadStatus(leadId) {
   const assignedTo = document.getElementById(`sel_assign_${leadId}`).value;
 
   try {
-    const url = `${API_URL}?action=updateLeadStatus&leadId=${encodeURIComponent(leadId)}&status=${encodeURIComponent(status)}&assignedTo=${encodeURIComponent(assignedTo)}`;
-    await sendJSONP(url);
+    await makeRequest({
+      action: 'updateLeadStatus',
+      leadId: leadId,
+      status: status,
+      assignedTo: assignedTo
+    });
     alert(`Lead ${leadId} updated successfully!`);
     refreshData();
   } catch (err) {
