@@ -1,9 +1,9 @@
-const API_URL = "https://script.google.com/macros/s/AKfycbyIEMm30vUurbfTsMSRThMNmqSM_ErntbNqY221QUnJzXx9kmbMKacQb6MbufSjI5-oYg/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbylEMm30vUurbfTsMSRThMNmqSM_ErntbNqY221QUnJzXx9kmbMKacQb6MbufSjI5-oYg/exec";
 
 let loggedInUser = null;
 let crmData = { leads: [], users: [] };
 
-// JSONP Helper for Seamless GitHub to Google Sheets API connection
+// JSONP Helper to avoid browser CORS blocks
 function sendJSONP(url) {
   return new Promise((resolve, reject) => {
     const callbackName = 'jsonp_cb_' + Math.round(100000 * Math.random());
@@ -122,7 +122,7 @@ function renderAll() {
     aSel.innerHTML += `<option value="${u.username}">${u.fullName} (${u.role})</option>`;
   });
 
-  // All Leads Table (Editable Status & Assign)
+  // All Leads Table with editable status
   const lBody = document.getElementById('allLeadsBody');
   lBody.innerHTML = '';
   leads.forEach(l => {
@@ -139,15 +139,9 @@ function renderAll() {
       <td>${l.phone}</td>
       <td>${l.city}</td>
       <td>${l.service}</td>
-      <td>
-        <select id="sel_assign_${l.id}" class="table-select">${userOptions}</select>
-      </td>
-      <td>
-        <select id="sel_status_${l.id}" class="table-select">${statusOptions}</select>
-      </td>
-      <td>
-        <button class="btn-save-sm" onclick="saveLeadStatus('${l.id}')"><i class="fa-solid fa-floppy-disk"></i> Save</button>
-      </td>
+      <td><select id="sel_assign_${l.id}" class="table-select">${userOptions}</select></td>
+      <td><select id="sel_status_${l.id}" class="table-select">${statusOptions}</select></td>
+      <td><button class="btn-save-sm" onclick="saveLeadStatus('${l.id}')"><i class="fa-solid fa-floppy-disk"></i> Save</button></td>
     </tr>`;
   });
 
@@ -199,7 +193,7 @@ async function saveLead() {
   }
 }
 
-// Add New Team Member/User
+// Add New User / Team Member
 async function saveUser() {
   const btn = document.getElementById('btnCreateUser');
   const fullName = document.getElementById('uFullName').value.trim();
@@ -231,7 +225,7 @@ async function saveUser() {
   }
 }
 
-// Update Lead Status & Assignee
+// Save Lead Status Changes
 async function saveLeadStatus(leadId) {
   const status = document.getElementById(`sel_status_${leadId}`).value;
   const assignedTo = document.getElementById(`sel_assign_${leadId}`).value;
@@ -239,7 +233,7 @@ async function saveLeadStatus(leadId) {
   try {
     const url = `${API_URL}?action=updateLeadStatus&leadId=${encodeURIComponent(leadId)}&status=${encodeURIComponent(status)}&assignedTo=${encodeURIComponent(assignedTo)}`;
     await sendJSONP(url);
-    alert(`Lead ${leadId} updated!`);
+    alert(`Lead ${leadId} updated successfully!`);
     refreshData();
   } catch (err) {
     alert("Error updating status!");
