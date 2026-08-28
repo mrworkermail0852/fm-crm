@@ -1,20 +1,17 @@
-// আপনার Web App URL সরাসরি যুক্ত করা হয়েছে
 const API_URL = "https://script.google.com/macros/s/AKfycbxJZ-iviR2DMZCbBYL5Cz_lFJgvIFg1kFN4Bxjo9qs4jxwx0eSJK7UaDPgPOB8yu6ZERQ/exec";
 
 let loggedInUser = null;
 let crmData = { leads: [], users: [] };
 
 async function login() {
-  const u = document.getElementById('logUser').value;
-  const p = document.getElementById('logPass').value;
+  const u = document.getElementById('logUser').value.trim();
+  const p = document.getElementById('logPass').value.trim();
   const msg = document.getElementById('logMsg');
-  msg.innerText = "Signing in...";
+  msg.innerText = "Connecting...";
 
   try {
-    const res = await fetch(API_URL, {
-      method: 'POST',
-      body: JSON.stringify({ action: 'login', username: u, password: p })
-    });
+    const url = `${API_URL}?action=login&username=${encodeURIComponent(u)}&password=${encodeURIComponent(p)}`;
+    const res = await fetch(url);
     const result = await res.json();
 
     if (result.success) {
@@ -29,7 +26,7 @@ async function login() {
       msg.innerText = result.message;
     }
   } catch (err) {
-    msg.innerText = "Connection Error!";
+    msg.innerText = "Connection Error! Check internet or script deployment.";
   }
 }
 
@@ -117,16 +114,14 @@ async function saveLead() {
   btn.disabled = true;
   btn.innerText = "Submitting...";
 
-  const payload = {
-    customer: document.getElementById('fName').value,
-    phone: document.getElementById('fPhone').value,
-    city: document.getElementById('fCity').value,
-    service: document.getElementById('fService').value,
-    assignedTo: document.getElementById('fAssign').value,
-    notes: document.getElementById('fNotes').value
-  };
+  const cust = document.getElementById('fName').value;
+  const phone = document.getElementById('fPhone').value;
+  const city = document.getElementById('fCity').value;
+  const service = document.getElementById('fService').value;
+  const assignedTo = document.getElementById('fAssign').value;
+  const notes = document.getElementById('fNotes').value;
 
-  if (!payload.customer || !payload.phone) {
+  if (!cust || !phone) {
     alert("Please enter Name and Phone!");
     btn.disabled = false;
     btn.innerText = "Submit Lead";
@@ -134,10 +129,8 @@ async function saveLead() {
   }
 
   try {
-    await fetch(API_URL, {
-      method: 'POST',
-      body: JSON.stringify({ action: 'addLead', lead: payload })
-    });
+    const url = `${API_URL}?action=addLead&customer=${encodeURIComponent(cust)}&phone=${encodeURIComponent(phone)}&city=${encodeURIComponent(city)}&service=${encodeURIComponent(service)}&assignedTo=${encodeURIComponent(assignedTo)}&notes=${encodeURIComponent(notes)}`;
+    await fetch(url);
     
     alert("Lead submitted successfully!");
     document.getElementById('fName').value = '';
