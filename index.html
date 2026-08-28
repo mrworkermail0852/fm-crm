@@ -9,7 +9,7 @@
 </head>
 <body>
 
-  <!-- Login Modal -->
+  <!-- Login Screen -->
   <div id="loginScreen" class="login-wrapper">
     <div class="login-card">
       <h2><i class="fa-solid fa-layer-group"></i> FM CRM</h2>
@@ -42,7 +42,7 @@
     </ul>
   </div>
 
-  <!-- Main Content -->
+  <!-- Main Content Area -->
   <div class="main-content">
     <div class="topbar">
       <div class="page-title" id="pageTitle">Dashboard</div>
@@ -53,7 +53,7 @@
     </div>
 
     <div class="content-body">
-      <!-- Dashboard Tab -->
+      <!-- Tab 1: Dashboard -->
       <div id="tab-dashboard" class="tab-pane">
         <div class="stat-cards-grid">
           <div class="card-metric c-blue">
@@ -85,21 +85,21 @@
         </div>
       </div>
 
-      <!-- Add Lead Tab -->
+      <!-- Tab 2: Add Lead -->
       <div id="tab-add-lead" class="tab-pane hidden">
         <div class="panel form-panel">
           <div class="panel-header">Add New Lead</div>
           <div class="form-group"><label>Customer Name</label><input type="text" id="fName" class="form-control" placeholder="Customer Name"></div>
           <div class="form-group"><label>Phone Number</label><input type="text" id="fPhone" class="form-control" placeholder="017xxxxxxxx"></div>
-          <div class="form-group"><label>City / Location</label><input type="text" id="fCity" class="form-control" placeholder="Dhaka / Chittagong"></div>
-          <div class="form-group"><label>Service Required</label><input type="text" id="fService" class="form-control" placeholder="e.g. Consultation / Product"></div>
+          <div class="form-group"><label>City / Location</label><input type="text" id="fCity" class="form-control" placeholder="Dhaka / Rangpur"></div>
+          <div class="form-group"><label>Service Required</label><input type="text" id="fService" class="form-control" placeholder="Service / Product Details"></div>
           <div class="form-group"><label>Assign To</label><select id="fAssign" class="form-control"></select></div>
-          <div class="form-group"><label>Notes</label><textarea id="fNotes" class="form-control" rows="3" placeholder="Additional info..."></textarea></div>
+          <div class="form-group"><label>Notes</label><textarea id="fNotes" class="form-control" rows="3" placeholder="Notes..."></textarea></div>
           <button class="btn-primary" id="submitBtn" onclick="saveLead()">Submit Lead</button>
         </div>
       </div>
 
-      <!-- Lead Sheet Tab (With Edit Status Option) -->
+      <!-- Tab 3: Lead Sheet (With Inline Edit Status & Assignee) -->
       <div id="tab-lead-sheet" class="tab-pane hidden">
         <div class="panel">
           <div class="panel-header">All Leads & Status Manager</div>
@@ -124,19 +124,18 @@
         </div>
       </div>
 
-      <!-- Users Tab (With Add User Form) -->
+      <!-- Tab 4: Users (With Add Member Form) -->
       <div id="tab-users" class="tab-pane hidden">
         <div class="users-layout">
-          <!-- Add User Form -->
           <div class="panel form-panel" style="margin-bottom:0;">
             <div class="panel-header"><i class="fa-solid fa-user-plus"></i> Add New Team Member</div>
-            <div class="form-group"><label>Full Name</label><input type="text" id="uFullName" class="form-control" placeholder="Name"></div>
-            <div class="form-group"><label>Username / Email</label><input type="text" id="uEmail" class="form-control" placeholder="user@gmail.com"></div>
+            <div class="form-group"><label>Full Name</label><input type="text" id="uFullName" class="form-control" placeholder="Member Name"></div>
+            <div class="form-group"><label>Username / Email</label><input type="text" id="uEmail" class="form-control" placeholder="agent@gmail.com"></div>
             <div class="form-group"><label>Password</label><input type="password" id="uPass" class="form-control" placeholder="Password"></div>
             <div class="form-group">
               <label>Role</label>
               <select id="uRole" class="form-control">
-                <option value="Agent">Agent / Team Member</option>
+                <option value="Agent">Agent</option>
                 <option value="Team Lead">Team Lead</option>
                 <option value="Admin">Admin</option>
               </select>
@@ -144,7 +143,6 @@
             <button class="btn-primary" id="btnCreateUser" onclick="saveUser()">Create Member</button>
           </div>
 
-          <!-- User List Table -->
           <div class="panel" style="margin-bottom:0;">
             <div class="panel-header"><i class="fa-solid fa-users"></i> Registered Team Members</div>
             <table>
@@ -157,12 +155,12 @@
         </div>
       </div>
 
-      <!-- Reports Tab -->
+      <!-- Tab 5: Reports -->
       <div id="tab-reports" class="tab-pane hidden">
         <div class="panel"><div class="panel-header">Reports Overview</div><p style="padding: 24px; color:#64748b;">Live conversion summaries and analytics are synced with Google Sheets.</p></div>
       </div>
 
-      <!-- Profile Tab -->
+      <!-- Tab 6: Profile -->
       <div id="tab-profile" class="tab-pane hidden">
         <div class="panel form-panel">
           <div class="panel-header">User Profile</div>
