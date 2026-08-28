@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>FM CRM</title>
+  <title>FM CRM Dashboard</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="stylesheet" href="style.css">
 </head>
@@ -15,13 +15,13 @@
       <h2><i class="fa-solid fa-layer-group"></i> FM CRM</h2>
       <div class="form-group">
         <label>Email / Username</label>
-        <input type="text" id="logUser" class="form-control" placeholder="mr.worker.mail.0852@gmail.com">
+        <input type="text" id="logUser" class="form-control" value="mr.worker.mail.0852@gmail.com">
       </div>
       <div class="form-group">
         <label>Password</label>
-        <input type="password" id="logPass" class="form-control" placeholder="••••••">
+        <input type="password" id="logPass" class="form-control" placeholder="123456">
       </div>
-      <button class="btn-login" onclick="login()">Sign In</button>
+      <button class="btn-login" id="loginBtn" onclick="login()">Sign In</button>
       <p id="logMsg" class="error-msg"></p>
     </div>
   </div>
@@ -32,12 +32,12 @@
       <i class="fa-solid fa-layer-group"></i> FM CRM
     </div>
     <ul class="nav-menu">
-      <li class="nav-item active" onclick="switchTab('tab-dashboard')"><i class="fa-solid fa-house"></i> Dashboard</li>
-      <li class="nav-item" onclick="switchTab('tab-add-lead')"><i class="fa-solid fa-circle-plus"></i> Add Lead</li>
-      <li class="nav-item" onclick="switchTab('tab-lead-sheet')"><i class="fa-solid fa-table-list"></i> Lead Sheet</li>
-      <li class="nav-item" onclick="switchTab('tab-users')"><i class="fa-solid fa-users"></i> Users</li>
-      <li class="nav-item" onclick="switchTab('tab-reports')"><i class="fa-solid fa-chart-pie"></i> Reports</li>
-      <li class="nav-item" onclick="switchTab('tab-profile')"><i class="fa-solid fa-user-gear"></i> Profile</li>
+      <li class="nav-item active" onclick="switchTab(event, 'tab-dashboard')"><i class="fa-solid fa-house"></i> Dashboard</li>
+      <li class="nav-item" onclick="switchTab(event, 'tab-add-lead')"><i class="fa-solid fa-circle-plus"></i> Add Lead</li>
+      <li class="nav-item" onclick="switchTab(event, 'tab-lead-sheet')"><i class="fa-solid fa-table-list"></i> Lead Sheet</li>
+      <li class="nav-item" onclick="switchTab(event, 'tab-users')"><i class="fa-solid fa-users"></i> Users</li>
+      <li class="nav-item" onclick="switchTab(event, 'tab-reports')"><i class="fa-solid fa-chart-pie"></i> Reports</li>
+      <li class="nav-item" onclick="switchTab(event, 'tab-profile')"><i class="fa-solid fa-user-gear"></i> Profile</li>
       <li class="nav-item logout" onclick="logout()"><i class="fa-solid fa-arrow-right-from-bracket"></i> Logout</li>
     </ul>
   </div>
@@ -48,12 +48,12 @@
       <div class="page-title" id="pageTitle">Dashboard</div>
       <div class="top-actions">
         <button class="btn-refresh" onclick="refreshData()"><i class="fa-solid fa-rotate"></i> Refresh</button>
-        <div class="user-badge"><span class="dot-online"></span> <span id="userNameBadge">Ripon Roy (Admin)</span></div>
+        <div class="user-badge"><span class="dot-online"></span> <span id="userNameBadge">Admin</span></div>
       </div>
     </div>
 
     <div class="content-body">
-      <!-- Dashboard -->
+      <!-- Dashboard Tab -->
       <div id="tab-dashboard" class="tab-pane">
         <div class="stat-cards-grid">
           <div class="card-metric c-blue">
@@ -85,58 +85,90 @@
         </div>
       </div>
 
-      <!-- Add Lead -->
+      <!-- Add Lead Tab -->
       <div id="tab-add-lead" class="tab-pane hidden">
-        <div class="panel" style="max-width: 600px; margin: 0 auto; padding: 24px;">
-          <div class="panel-header" style="padding-left:0; padding-top:0;">Add New Lead</div>
-          <div class="form-group"><label>Customer Name</label><input type="text" id="fName" class="form-control"></div>
-          <div class="form-group"><label>Phone Number</label><input type="text" id="fPhone" class="form-control"></div>
-          <div class="form-group"><label>City / Location</label><input type="text" id="fCity" class="form-control"></div>
-          <div class="form-group"><label>Service Required</label><input type="text" id="fService" class="form-control"></div>
+        <div class="panel form-panel">
+          <div class="panel-header">Add New Lead</div>
+          <div class="form-group"><label>Customer Name</label><input type="text" id="fName" class="form-control" placeholder="Customer Name"></div>
+          <div class="form-group"><label>Phone Number</label><input type="text" id="fPhone" class="form-control" placeholder="017xxxxxxxx"></div>
+          <div class="form-group"><label>City / Location</label><input type="text" id="fCity" class="form-control" placeholder="Dhaka / Chittagong"></div>
+          <div class="form-group"><label>Service Required</label><input type="text" id="fService" class="form-control" placeholder="e.g. Consultation / Product"></div>
           <div class="form-group"><label>Assign To</label><select id="fAssign" class="form-control"></select></div>
-          <div class="form-group"><label>Notes</label><textarea id="fNotes" class="form-control" rows="3"></textarea></div>
-          <button class="btn-login" id="submitBtn" onclick="saveLead()">Submit Lead</button>
+          <div class="form-group"><label>Notes</label><textarea id="fNotes" class="form-control" rows="3" placeholder="Additional info..."></textarea></div>
+          <button class="btn-primary" id="submitBtn" onclick="saveLead()">Submit Lead</button>
         </div>
       </div>
 
-      <!-- Lead Sheet -->
+      <!-- Lead Sheet Tab (With Edit Status Option) -->
       <div id="tab-lead-sheet" class="tab-pane hidden">
         <div class="panel">
-          <div class="panel-header">All Leads</div>
-          <table>
-            <thead>
-              <tr><th>Lead ID</th><th>Date/Time</th><th>Customer</th><th>Phone</th><th>City</th><th>Service</th><th>Assigned To</th><th>Status</th></tr>
-            </thead>
-            <tbody id="allLeadsBody"></tbody>
-          </table>
+          <div class="panel-header">All Leads & Status Manager</div>
+          <div class="table-responsive">
+            <table>
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Date</th>
+                  <th>Customer</th>
+                  <th>Phone</th>
+                  <th>City</th>
+                  <th>Service</th>
+                  <th>Assigned Agent</th>
+                  <th>Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="allLeadsBody"></tbody>
+            </table>
+          </div>
         </div>
       </div>
 
-      <!-- Users -->
+      <!-- Users Tab (With Add User Form) -->
       <div id="tab-users" class="tab-pane hidden">
-        <div class="panel">
-          <div class="panel-header">Registered Team Members</div>
-          <table>
-            <thead>
-              <tr><th>Name</th><th>Username / Email</th><th>Role</th></tr>
-            </thead>
-            <tbody id="usersListBody"></tbody>
-          </table>
+        <div class="users-layout">
+          <!-- Add User Form -->
+          <div class="panel form-panel" style="margin-bottom:0;">
+            <div class="panel-header"><i class="fa-solid fa-user-plus"></i> Add New Team Member</div>
+            <div class="form-group"><label>Full Name</label><input type="text" id="uFullName" class="form-control" placeholder="Name"></div>
+            <div class="form-group"><label>Username / Email</label><input type="text" id="uEmail" class="form-control" placeholder="user@gmail.com"></div>
+            <div class="form-group"><label>Password</label><input type="password" id="uPass" class="form-control" placeholder="Password"></div>
+            <div class="form-group">
+              <label>Role</label>
+              <select id="uRole" class="form-control">
+                <option value="Agent">Agent / Team Member</option>
+                <option value="Team Lead">Team Lead</option>
+                <option value="Admin">Admin</option>
+              </select>
+            </div>
+            <button class="btn-primary" id="btnCreateUser" onclick="saveUser()">Create Member</button>
+          </div>
+
+          <!-- User List Table -->
+          <div class="panel" style="margin-bottom:0;">
+            <div class="panel-header"><i class="fa-solid fa-users"></i> Registered Team Members</div>
+            <table>
+              <thead>
+                <tr><th>Full Name</th><th>Username / Email</th><th>Role</th></tr>
+              </thead>
+              <tbody id="usersListBody"></tbody>
+            </table>
+          </div>
         </div>
       </div>
 
-      <!-- Reports -->
+      <!-- Reports Tab -->
       <div id="tab-reports" class="tab-pane hidden">
-        <div class="panel"><div class="panel-header">Reports Overview</div><p style="padding: 24px; color:#64748b;">Automated report summaries are ready.</p></div>
+        <div class="panel"><div class="panel-header">Reports Overview</div><p style="padding: 24px; color:#64748b;">Live conversion summaries and analytics are synced with Google Sheets.</p></div>
       </div>
 
-      <!-- Profile -->
+      <!-- Profile Tab -->
       <div id="tab-profile" class="tab-pane hidden">
-        <div class="panel" style="max-width: 500px; padding: 24px;">
-          <div class="panel-header" style="padding-left:0; padding-top:0;">User Profile</div>
-          <p style="margin-bottom:8px;"><strong>Full Name:</strong> <span id="profName"></span></p>
-          <p style="margin-bottom:8px;"><strong>Email/Username:</strong> <span id="profUser"></span></p>
-          <p><strong>Role:</strong> <span id="profRole"></span></p>
+        <div class="panel form-panel">
+          <div class="panel-header">User Profile</div>
+          <p style="margin-bottom:12px;"><strong>Full Name:</strong> <span id="profName"></span></p>
+          <p style="margin-bottom:12px;"><strong>Email:</strong> <span id="profUser"></span></p>
+          <p><strong>Role:</strong> <span id="profRole" class="badge badge-booked"></span></p>
         </div>
       </div>
     </div>
